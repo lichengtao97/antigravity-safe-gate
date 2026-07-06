@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODE_FILE="${ANTIGRAVITY_SAFE_MODE_FILE:-$HOME/.gemini/config/antigravity-safe-mode.json}"
+AGY_BIN="${AGY_BIN:-$HOME/.local/bin/agy}"
+
+normalize_mode() {
+  local raw="${1:-}"
+  raw="${raw//-/_}"
+  raw="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+
+  case "$raw" in
+    ""|1|safe|white|whitelist|white_list)
+      printf '%s\n' "whitelist"
+      ;;
+    2|all|allow_all|turbo)
+      printf '%s\n' "allow_all"
+      ;;
+    3|ask|manual|confirm)
+      printf '%s\n' "ask"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+write_mode() {
+  local mode="$1"
+  mkdir -p "$(dirname "$MODE_FILE")"
+  printf '{"mode":"%s","updated_at":"%s","source":"agy-safe"}\n' \
+    "$mode" "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" > "$MODE_FILE"
+}
+
+choose_mode() {
+  if [[ -n "${AGY_SAFE_MODE:-}" ]]; then
+    normalize_mode "$AGY_SAFE_MODE"
+    return
+  fi
+
+  if [[ ! -t 0 ]]; then
+    printf '%s\n' "whitelist"
+    return
+  fi
+
+  printf 'Choose Antigravity approval mode for this session:\n'
+  printf '  1) whitelist  Auto-approve read-only low-risk commands and safe reads\n'
+  printf '  2) allow-all   Auto-approve every tool call for this session\n'
+  printf '  3) ask         Manually confirm every tool call\n'
+  printf 'Mode [1]: '
+  local raw
+  read -r raw
+  normalize_mode "$raw"
+}
+
+if [[ ! -x "$AGY_BIN" ]]; then
+  printf 'agy binary not found or not executable: %s\n' "$AGY_BIN" >&2
+  exit 127
+fi
+
+mode="$(choose_mode)" || {
+  printf 'Invalid mode. Use whitelist, allow-all, or ask.\n' >&2
+  exit 2
+}
+
+cleanup() {
+  write_mode "ask" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT INT TERM HUP
+
+write_mode "$mode"
+printf 'Antigravity approval mode: %s\n' "$mode" >&2
+"$AGY_BIN" "$@"
