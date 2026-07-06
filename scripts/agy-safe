@@ -70,4 +70,18 @@ trap cleanup EXIT INT TERM HUP
 
 write_mode "$mode"
 printf 'Antigravity approval mode: %s\n' "$mode" >&2
+
+if [[ "$mode" == "allow_all" ]]; then
+  has_skip_permissions=0
+  for arg in "$@"; do
+    if [[ "$arg" == "--dangerously-skip-permissions" ]]; then
+      has_skip_permissions=1
+      break
+    fi
+  done
+  if [[ "$has_skip_permissions" == "0" ]]; then
+    set -- --dangerously-skip-permissions "$@"
+  fi
+fi
+
 "$AGY_BIN" "$@"

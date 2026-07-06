@@ -72,7 +72,7 @@ Whitelist mode asks for confirmation for:
 
 ## Allow-All Warning
 
-`allow-all` means the hook returns `{"decision": "allow"}` for every tool call in that session. It does not grant root privileges, but it does remove the Antigravity/Gemini confirmation gate for anything the current user account can do.
+`allow-all` means the hook returns `{"decision": "allow"}` for every tool call in that session, and `agy-safe` starts `agy` with `--dangerously-skip-permissions` so Antigravity's native permission prompts are skipped too. It does not grant root privileges, but it does remove the Antigravity/Gemini confirmation gate for anything the current user account can do.
 
 Use it only for fully trusted local tasks.
 

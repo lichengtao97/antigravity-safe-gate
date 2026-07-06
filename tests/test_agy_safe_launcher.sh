@@ -19,9 +19,20 @@ AGY_SAFE_MODE=allow-all \
   ANTIGRAVITY_SAFE_MODE_FILE="$MODE_FILE" \
   "$ROOT_DIR/scripts/agy-safe" --version > "$TMP_DIR/noninteractive.out" 2> "$TMP_DIR/noninteractive.err"
 
-grep -q 'fake-agy:--version' "$TMP_DIR/noninteractive.out"
+grep -q 'fake-agy:--dangerously-skip-permissions --version' "$TMP_DIR/noninteractive.out"
 grep -q 'Antigravity approval mode: allow_all' "$TMP_DIR/noninteractive.err"
 grep -q '"mode":"ask"' "$MODE_FILE"
+
+AGY_SAFE_MODE=whitelist \
+  AGY_BIN="$FAKE_AGY" \
+  ANTIGRAVITY_SAFE_MODE_FILE="$MODE_FILE" \
+  "$ROOT_DIR/scripts/agy-safe" --version > "$TMP_DIR/whitelist.out" 2> "$TMP_DIR/whitelist.err"
+
+grep -q 'fake-agy:--version' "$TMP_DIR/whitelist.out"
+if grep -q -- '--dangerously-skip-permissions' "$TMP_DIR/whitelist.out"; then
+  echo 'whitelist mode should not skip native permissions' >&2
+  exit 1
+fi
 
 printf '\n' | script -q /dev/null \
   env AGY_BIN="$FAKE_AGY" \
