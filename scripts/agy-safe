@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MODE_FILE="${ANTIGRAVITY_SAFE_MODE_FILE:-$HOME/.gemini/config/antigravity-safe-mode.json}"
 AGY_BIN="${AGY_BIN:-$HOME/.local/bin/agy}"
+
+if [[ -n "${ANTIGRAVITY_SAFE_MODE_FILE:-}" ]]; then
+  MODE_FILE="$ANTIGRAVITY_SAFE_MODE_FILE"
+else
+  MODE_FILE="$HOME/.gemini/config/antigravity-safe-sessions/agy-safe-$$.json"
+  export ANTIGRAVITY_SAFE_MODE_FILE="$MODE_FILE"
+fi
 
 normalize_mode() {
   local raw="${1:-}"

@@ -11,8 +11,25 @@ MODE_FILE="$TMP_DIR/mode.json"
 cat > "$FAKE_AGY" <<'SH'
 #!/usr/bin/env bash
 printf 'fake-agy:%s\n' "$*"
+printf 'mode-env:%s\n' "${ANTIGRAVITY_SAFE_MODE_FILE:-}"
+if [[ -n "${ANTIGRAVITY_SAFE_MODE_FILE:-}" && -f "$ANTIGRAVITY_SAFE_MODE_FILE" ]]; then
+  printf 'mode-content:'
+  cat "$ANTIGRAVITY_SAFE_MODE_FILE"
+fi
 SH
 chmod +x "$FAKE_AGY"
+
+AGY_SAFE_MODE=allow-all \
+  AGY_BIN="$FAKE_AGY" \
+  HOME="$TMP_DIR/home" \
+  "$ROOT_DIR/scripts/agy-safe" --version > "$TMP_DIR/session.out" 2> "$TMP_DIR/session.err"
+
+grep -q 'mode-env:' "$TMP_DIR/session.out"
+if grep -q 'mode-env:$' "$TMP_DIR/session.out"; then
+  echo 'session mode file was not exported to agy child process' >&2
+  exit 1
+fi
+grep -q 'mode-content:{"mode":"allow_all"' "$TMP_DIR/session.out"
 
 AGY_SAFE_MODE=allow-all \
   AGY_BIN="$FAKE_AGY" \

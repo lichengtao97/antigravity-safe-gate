@@ -8,7 +8,7 @@ This project was inspired by [`puti001/antigravity-automation`](https://github.c
 - `whitelist`: auto-approve only low-risk read-only commands and non-sensitive reads.
 - `allow-all`: auto-approve every tool call for the current session.
 
-It installs a `PreToolUse` hook and an `agy-safe` launcher. The launcher lets you choose an approval mode before starting Antigravity CLI, then resets back to `ask` when the session exits.
+It installs a `PreToolUse` hook and an `agy-safe` launcher. The launcher lets you choose an approval mode before starting Antigravity CLI, passes that mode through a session-specific mode file, then resets back to `ask` when the session exits.
 
 ## Why
 
