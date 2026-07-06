@@ -43,11 +43,11 @@ choose_mode() {
     return
   fi
 
-  printf 'Choose Antigravity approval mode for this session:\n'
-  printf '  1) whitelist  Auto-approve read-only low-risk commands and safe reads\n'
-  printf '  2) allow-all   Auto-approve every tool call for this session\n'
-  printf '  3) ask         Manually confirm every tool call\n'
-  printf 'Mode [1]: '
+  printf 'Choose Antigravity approval mode for this session:\n' >&2
+  printf '  1) whitelist  Auto-approve read-only low-risk commands and safe reads\n' >&2
+  printf '  2) allow-all   Auto-approve every tool call for this session\n' >&2
+  printf '  3) ask         Manually confirm every tool call\n' >&2
+  printf 'Mode [1]: ' >&2
   local raw
   read -r raw
   normalize_mode "$raw"

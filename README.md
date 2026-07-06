@@ -43,6 +43,8 @@ Choose one mode for the session:
 3) ask         Manually confirm every tool call
 ```
 
+Press Enter at the prompt to accept the default `whitelist` mode.
+
 You can also choose a mode non-interactively:
 
 ```bash
